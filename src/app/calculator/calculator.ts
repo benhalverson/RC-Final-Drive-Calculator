@@ -38,10 +38,26 @@ export class Calculator implements OnInit {
     this.store.toggleIrOverride();
   }
 
+  onAddPreset(name: string): void {
+    this.store.addUserPreset(name);
+  }
+
+  onRemovePreset(id: string): void {
+    this.store.removeUserPreset(id);
+    // If we just deleted the current preset, switch to the first available
+    if (this.store.selectedId() === id) {
+      const firstPreset = this.store.presets()[0];
+      if (firstPreset) {
+        this.store.selectPreset(firstPreset.id);
+      }
+    }
+  }
+
   ngOnInit(): void {
     // Initialize from URL on the client to prefill a single form without SSR mismatches
     if (typeof globalThis !== 'undefined' && typeof (globalThis as unknown as { location?: unknown }).location !== 'undefined') {
       this.store.initFromLocation();
+      this.store.initUserPresets();
     }
   }
 }

@@ -12,8 +12,11 @@
   <div class="rounded-lg border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
     <app-preset-select
       [presets]="store.presets()"
+      [userPresets]="store.userPresets()"
       [value]="store.selectedId()"
       (valueChange)="onPresetChange($event)"
+      (addPreset)="onAddPreset($event)"
+      (removePreset)="onRemovePreset($event)"
     />
   </div>
 

@@ -2,9 +2,13 @@ import { computed } from '@angular/core';
 import { patchState, signalStore, withComputed, withMethods, withState } from '@ngrx/signals';
 import type { Preset } from '../interfaces/Preset';
 import { CARS } from '../data/presets';
+import { inject } from '@angular/core';
+import type { UserPreset } from '../interfaces/UserPreset';
+import { UserPresetsService } from '../services/user-presets.service';
 
 interface CalculatorState {
   presets: Preset[];
+  userPresets: UserPreset[];
   selectedId: string;
   spur: number;
   pinion: number;
@@ -39,6 +43,7 @@ const initialState = (): CalculatorState => {
 
   return {
     presets,
+    userPresets: [],
     selectedId,
     spur: Number(qs.get('spur')) || 72,
     pinion: Number(qs.get('pinion')) || 32,
@@ -50,8 +55,9 @@ const initialState = (): CalculatorState => {
 export const CalculatorStore = signalStore(
   { providedIn: 'root' },
   withState(initialState()),
-  withComputed(({ presets, selectedId, spur, pinion, internalRatio }) => ({
+  withComputed(({ presets, userPresets, selectedId, spur, pinion, internalRatio }) => ({
     selectedPreset: computed(() => presets().find((p) => p.id === selectedId())),
+    selectedUserPreset: computed(() => userPresets().find((p) => p.id === selectedId())),
     fdr: computed(() => {
       const spurValue = spur();
       const pinionValue = pinion();
@@ -67,7 +73,15 @@ export const CalculatorStore = signalStore(
       return spurValue > 0 && pinionValue > 0 && internalRatioValue > 0;
     }),
   })),
-  withMethods((store) => ({
+  withMethods((store) => {
+    const service = inject(UserPresetsService);
+    return ({
+    initUserPresets(): void {
+      service.load().subscribe({
+        next: (saved) => patchState(store, { userPresets: saved }),
+        error: (error) => console.error('Failed to initialize user presets:', error)
+      });
+    },
     initFromLocation(): void {
       const qs = new URLSearchParams(getSearchParamString());
       const maybePreset = qs.get('preset');
@@ -87,13 +101,22 @@ export const CalculatorStore = signalStore(
     },
     selectPreset(id: string): void {
       const preset = store.presets().find((p) => p.id === id);
+      const user = store.userPresets().find((p) => p.id === id);
       if (preset) {
-        // Only update internalRatio from preset if not overridden by user
         if (!store.irOverridden()) {
           patchState(store, { selectedId: id, internalRatio: preset.internalRatio });
         } else {
           patchState(store, { selectedId: id });
         }
+      } else if (user) {
+        // Selecting a user preset should apply their saved defaults
+        patchState(store, {
+          selectedId: id,
+          internalRatio: user.internalRatio,
+          spur: user.spur,
+          pinion: user.pinion,
+          irOverridden: false,
+        });
       }
     },
     setSpur(value: number): void {
@@ -104,6 +127,27 @@ export const CalculatorStore = signalStore(
     },
     setInternalRatio(value: number): void {
       patchState(store, { internalRatio: value });
+    },
+    addUserPreset(name: string): void {
+      const newPreset: UserPreset = {
+        id: `user:${Date.now().toString(36)}`,
+        name,
+        spur: store.spur(),
+        pinion: store.pinion(),
+        internalRatio: store.internalRatio(),
+      };
+      const updated = [...store.userPresets(), newPreset];
+      patchState(store, { userPresets: updated, selectedId: newPreset.id, irOverridden: false });
+      service.save(updated).subscribe({
+        error: (error) => console.error('Failed to save user preset:', error)
+      });
+    },
+    removeUserPreset(id: string): void {
+      const updated = store.userPresets().filter(p => p.id !== id);
+      patchState(store, { userPresets: updated });
+      service.save(updated).subscribe({
+        error: (error) => console.error('Failed to remove user preset:', error)
+      });
     },
     toggleIrOverride(): void {
       const next = !store.irOverridden();
@@ -138,5 +182,6 @@ export const CalculatorStore = signalStore(
         });
       }
     },
-  }))
+  });
+  })
 );
