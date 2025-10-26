@@ -23,10 +23,13 @@
       [spur]="store.spur()"
       [pinion]="store.pinion()"
       [internalRatio]="store.internalRatio()"
+      [irOverridden]="store.irOverridden()"
       [fdr]="store.fdr()"
       [isFdrValid]="store.fdrValid()"
       (spurChange)="onSpurChange($event)"
       (pinionChange)="onPinionChange($event)"
+      (internalRatioChange)="onInternalRatioChange($event)"
+      (irOverrideToggle)="onIrOverrideToggle()"
     />
   </div>
 </section>

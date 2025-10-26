@@ -30,6 +30,14 @@ export class Calculator implements OnInit {
     this.store.setPinion(Number.isFinite(value) ? value : 0);
   }
 
+  onInternalRatioChange(value: number): void {
+    this.store.setInternalRatio(Number.isFinite(value) && value > 0 ? value : 0);
+  }
+
+  onIrOverrideToggle(): void {
+    this.store.toggleIrOverride();
+  }
+
   ngOnInit(): void {
     // Initialize from URL on the client to prefill a single form without SSR mismatches
     if (typeof globalThis !== 'undefined' && typeof (globalThis as unknown as { location?: unknown }).location !== 'undefined') {

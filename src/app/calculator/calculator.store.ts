@@ -9,6 +9,7 @@ interface CalculatorState {
   spur: number;
   pinion: number;
   internalRatio: number;
+  irOverridden: boolean;
 }
 
 function getSearchParamString(): string {
@@ -42,6 +43,7 @@ const initialState = (): CalculatorState => {
     spur: Number(qs.get('spur')) || 72,
     pinion: Number(qs.get('pinion')) || 32,
     internalRatio: selectedPreset?.internalRatio ?? 1,
+    irOverridden: false,
   };
 };
 
@@ -74,7 +76,7 @@ export const CalculatorStore = signalStore(
 
       if (maybePreset && store.presets().some(p => p.id === maybePreset)) {
         const preset = store.presets().find(p => p.id === maybePreset)!;
-        patchState(store, { selectedId: preset.id, internalRatio: preset.internalRatio });
+        patchState(store, { selectedId: preset.id, internalRatio: preset.internalRatio, irOverridden: false });
       }
       if (Number.isFinite(spurParam) && spurParam > 0) {
         patchState(store, { spur: spurParam });
@@ -86,7 +88,12 @@ export const CalculatorStore = signalStore(
     selectPreset(id: string): void {
       const preset = store.presets().find((p) => p.id === id);
       if (preset) {
-        patchState(store, { selectedId: id, internalRatio: preset.internalRatio });
+        // Only update internalRatio from preset if not overridden by user
+        if (!store.irOverridden()) {
+          patchState(store, { selectedId: id, internalRatio: preset.internalRatio });
+        } else {
+          patchState(store, { selectedId: id });
+        }
       }
     },
     setSpur(value: number): void {
@@ -95,13 +102,39 @@ export const CalculatorStore = signalStore(
     setPinion(value: number): void {
       patchState(store, { pinion: value });
     },
+    setInternalRatio(value: number): void {
+      patchState(store, { internalRatio: value });
+    },
+    toggleIrOverride(): void {
+      const next = !store.irOverridden();
+      // If turning off override, snap back to preset's IR
+      if (!next) {
+        const preset = store.selectedPreset();
+        if (preset) {
+          patchState(store, { irOverridden: false, internalRatio: preset.internalRatio });
+          return;
+        }
+      }
+      patchState(store, { irOverridden: next });
+    },
+    setIrOverridden(value: boolean): void {
+      if (!value) {
+        const preset = store.selectedPreset();
+        if (preset) {
+          patchState(store, { irOverridden: false, internalRatio: preset.internalRatio });
+          return;
+        }
+      }
+      patchState(store, { irOverridden: value });
+    },
     resetToPreset(): void {
       const preset = store.selectedPreset();
       if (preset) {
         patchState(store, {
           internalRatio: preset.internalRatio,
           spur: 72,
-          pinion: 32
+          pinion: 32,
+          irOverridden: false,
         });
       }
     },

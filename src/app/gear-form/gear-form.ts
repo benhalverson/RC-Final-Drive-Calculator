@@ -13,12 +13,15 @@ export class GearForm {
   spur = input.required<number>();
   pinion = input.required<number>();
   internalRatio = input.required<number>();
+  irOverridden = input.required<boolean>();
   fdr = input.required<number>();
   isFdrValid = input.required<boolean>();
 
   // Outputs
   spurChange = output<number>();
   pinionChange = output<number>();
+  internalRatioChange = output<number>();
+  irOverrideToggle = output<void>();
 
   onSpurInput(event: Event): void {
     const inputEl = event.target as HTMLInputElement;
@@ -30,6 +33,12 @@ export class GearForm {
     const inputEl = event.target as HTMLInputElement;
     const value = Number(inputEl.value);
     this.pinionChange.emit(Number.isFinite(value) ? value : 0);
+  }
+
+  onIrInput(event: Event): void {
+    const inputEl = event.target as HTMLInputElement;
+    const value = Number(inputEl.value);
+    this.internalRatioChange.emit(Number.isFinite(value) ? value : 0);
   }
 
 }
