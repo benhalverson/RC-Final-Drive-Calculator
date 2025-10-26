@@ -8,6 +8,7 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
+    "test:ci": "ng test --watch=false --browsers=ChromeHeadlessNoSandbox",
     "serve:ssr:rc-fdr-calc": "node dist/rc-fdr-calc/server/server.mjs",
     "deploy": "pnpm run build && wrangler deploy",
     "cf-typegen": "wrangler types"
