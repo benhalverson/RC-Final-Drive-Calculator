@@ -1,1 +1,2 @@
-@import "tailwindcss";
+/* Component-scoped styles for App component.
+	Tailwind is imported globally in src/styles.css to avoid large per-component CSS bundles. */
