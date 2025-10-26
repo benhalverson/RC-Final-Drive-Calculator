@@ -1,1 +1,18 @@
 /* You can add global styles to this file, and also import other style files */
+@import "tailwindcss";
+
+@theme {
+	--color-*: initial;
+}
+
+/* Help native controls adapt to theme */
+html { color-scheme: light; }
+html.dark { color-scheme: dark; }
+
+/* Native select dropdown dark-mode support (best effort across browsers) */
+select { color-scheme: light; }
+html.dark select { color-scheme: dark; background-color: #111827; color: #f3f4f6; border-color: #4b5563; }
+html.dark select:focus { outline: none; box-shadow: 0 0 0 2px #818cf8; }
+/* Options panel rendering is browser-controlled, but these help where supported */
+html.dark option { background-color: #111827; color: #e5e7eb; }
+html.dark optgroup { background-color: #111827; color: #d1d5db; font-weight: 600; }

@@ -1,0 +1,61 @@
+<div class="grid gap-4 sm:grid-cols-2">
+  <div>
+    <label for="spur" class="block text-sm/6 font-medium text-gray-900">Spur Gear</label>
+    <div class="mt-2 relative">
+      <input
+        type="number"
+        id="spur"
+        name="spur"
+        [value]="spur()"
+        (input)="onSpurInput($event)"
+        class="w-full rounded-lg bg-white py-2 pl-3 pr-14 text-base text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 shadow-sm transition-colors hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 sm:text-sm"
+      />
+      <span class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-xs text-gray-500">teeth</span>
+    </div>
+    <p class="mt-1 text-xs text-gray-600">Enter the spur gear tooth count.</p>
+  </div>
+
+  <div>
+    <label for="pinion" class="block text-sm/6 font-medium text-gray-900">Pinion Gear</label>
+    <div class="mt-2 relative">
+      <input
+        type="number"
+        id="pinion"
+        name="pinion"
+        [value]="pinion()"
+        (input)="onPinionInput($event)"
+        class="w-full rounded-lg bg-white py-2 pl-3 pr-14 text-base text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 shadow-sm transition-colors hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 sm:text-sm"
+      />
+      <span class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-xs text-gray-500">teeth</span>
+    </div>
+    <p class="mt-1 text-xs text-gray-600">Enter the pinion gear tooth count.</p>
+  </div>
+
+  <div class="sm:col-span-2">
+    <label for="internal-ratio" class="block text-sm/6 font-medium text-gray-900">Internal Ratio</label>
+    <div class="mt-2 relative">
+      <input
+        type="number"
+        id="internal-ratio"
+        name="internal-ratio"
+        [value]="internalRatio()"
+        readonly
+        class="w-full rounded-lg bg-gray-50 py-2 pl-3 pr-12 text-base text-gray-500 ring-1 ring-inset ring-gray-200 sm:text-sm opacity-60 cursor-not-allowed"
+      />
+      <span class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-xs text-gray-500">IR</span>
+    </div>
+    <p class="mt-1 text-xs text-gray-600">Set by the selected preset.</p>
+  </div>
+</div>
+
+<div class="mt-4 rounded-lg border border-indigo-200 bg-indigo-50 p-4">
+  <div class="text-sm font-medium text-indigo-700">Final Drive Ratio (FDR)</div>
+  <div class="mt-1 flex items-baseline gap-2">
+    @if (isFdrValid()) {
+      <span class="text-3xl font-bold text-gray-900">{{ fdr() }}</span>
+      <span class="text-sm text-gray-600">ratio</span>
+    } @else {
+      <span class="text-red-600">Invalid</span>
+    }
+  </div>
+</div>
